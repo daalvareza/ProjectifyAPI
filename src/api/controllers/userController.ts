@@ -4,16 +4,26 @@ import jwt from "jsonwebtoken";
 
 // Function for adding a new user
 const addUser = async (req: Request, res: Response) => {
+    
+    const { username, password } = req.body;
+
+    // Find the user in the database based on the username
+    const user = await User.findOne({ username });
+
     // Create a new user instance
     const newUser = new User({
-        username: 'testUser',
-        password: 'testPassword'
+        username: username,
+        password: password
     });
 
     // Save the new user to the database
-    newUser.save()
-        .then((user: any) => console.log(user))
-        .catch((error: any) => console.log(error));
+    await newUser.save()
+        .then((user: any) => console.log(`New user created: ${user}`))
+        .catch((error: any) => {
+            return res.status(400).json({
+                error: error
+            });
+        });
 
     // Return a JSON response indicating success
     return res.status(200).json({
@@ -40,7 +50,7 @@ const login = async (req: Request, res: Response) => {
     } else {
         // Return an error message if the username or password is invalid
         return res.status(401).json({
-            message: 'Invalid username or password'
+            error: 'Invalid username or password'
         });
     }
 }

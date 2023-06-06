@@ -2,6 +2,7 @@ import express, { Express, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import userRoutes from './api/routes/usersRoutes';
 import projectsRoutes from './api/routes/projectsRoutes';
+import reportsRoutes from './api/routes/reportsRoutes';
 
 // Create an instance of Express
 const router: Express = express();
@@ -29,6 +30,9 @@ router.use('/user', userRoutes);
 
 // Routes for handling project-related operations
 router.use('/projects', projectsRoutes);
+
+// Routes for handling reports-related operations
+router.use('/reports', reportsRoutes);
 
 // Middleware for handling 404 errors
 router.use((req: Request, res: Response) => {
