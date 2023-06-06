@@ -11,17 +11,16 @@ const addProject = async (req: Request, res: Response) => {
 
     // Save the new project to the database
     await newProject.save()
-        .then((project: any) => console.log(`New project created: ${project}`))
+        .then((project: any) => {
+            return res.status(200).json({
+                message: `New project created: ${JSON.stringify(project)}`,
+            });
+        })
         .catch((error: any) => {
             return res.status(400).json({
-                error: error
+                error: error.message
             });
         });
-
-    // Return a JSON response indicating success
-    return res.status(200).json({
-        message: `New project created: ${newProject}`
-    });
 }
 
 // Function for getting projects

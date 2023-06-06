@@ -45,34 +45,33 @@ const addReport = async (req: Request, res: Response) => {
     // Create a new report instance
     const newReport = new Report({ user: userId, project: projectId, weekNumber, hours, year });
 
+     // Update user and project associations
+     user.reports.push(newReport);
+     project.reports.push(newReport);
+ 
+     if (!user.projects.includes(projectId)) {
+         user.projects.push(project);
+     }
+ 
+     if (!project.users.includes(userId)) {
+         project.users.push(user);
+     }
+ 
+     await user.save();
+     await project.save();
+
     // Save the new report to the database
     await newReport.save()
-        .then((report: any) => console.log(`New report created: ${report}`))
+        .then((report: any) => {
+            return res.status(200).json({
+                message: `New report created: ${JSON.stringify(report)}`
+            });
+        })
         .catch((error: any) => {
             return res.status(400).json({
                 error: error
             });
-        });
-
-    // Update user and project associations
-    user.reports.push(newReport);
-    project.reports.push(newReport);
-
-    if (!user.projects.includes(projectId)) {
-        user.projects.push(project);
-    }
-
-    if (!project.users.includes(userId)) {
-        project.users.push(user);
-    }
-
-    await user.save();
-    await project.save();
-
-    // Return a JSON response indicating success
-    return res.status(200).json({
-        message: `New report created: ${newReport}`
-    });
+        });    
 }
 
 // Function for getting reports for a user
