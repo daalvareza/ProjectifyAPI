@@ -33,7 +33,7 @@ const addReport = async (req: Request, res: Response) => {
     const weekReportHours = await Report.find({ user: userId, weekNumber, year });
 
     // Calculate the total hours for the week
-    const totalHours = weekReportHours.reduce((sum, entry) => sum + entry.hours, 0);
+    const totalHours = weekReportHours.reduce((sum, entry) => sum + entry.hours.valueOf(), 0);
 
     // Check if the total hours exceed the limit of 45
     if (totalHours + hours > 45) {
@@ -46,15 +46,15 @@ const addReport = async (req: Request, res: Response) => {
     const newReport = new Report({ user: userId, project: projectId, weekNumber, hours, year });
 
      // Update user and project associations
-     user.reports.push(newReport);
-     project.reports.push(newReport);
+     user.reports.push(newReport._id);
+     project.reports.push(newReport._id);
  
      if (!user.projects.includes(projectId)) {
-         user.projects.push(project);
+         user.projects.push(project._id);
      }
  
      if (!project.users.includes(userId)) {
-         project.users.push(user);
+         project.users.push(user._id);
      }
  
      await user.save();
@@ -78,27 +78,35 @@ const addReport = async (req: Request, res: Response) => {
 const getReports = async (req: Request, res: Response) => {
     // Get the user ID from the query parameters
     const userId = req.query.userId;
-
-    // Find the user and populate the associated reports
-    const user = await User.findById(userId).populate('reports');
-
-    // Check if the user is not found
-    if (!user) {
-        return res.status(404).json({
-            error: 'User not found'
-        });
+    if (!userId) {
+        return res.status(400).json({ error: 'UserId is required' });
     }
 
-    // Return a JSON response with the user's reports
-    return res.status(200).json({
-        reports: user.reports
-    });
+    try {
+        // Find the user and populate the associated reports
+        const user = await User.findById(userId).populate('reports');
+
+        // Check if the user is not found
+        if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Return a JSON response with the user's reports
+        return res.status(200).json({ reports: user.reports });
+    } catch (err) {
+        return res.status(500).json({ error: 'Database error' });
+    }
 }
 
 // Function for updating a report
 const updateReports = async (req: Request, res: Response) => {
     // Extract necessary data from the request body
     const { reportId, hours } = req.body;
+
+    // Check if reportId or hours are not provided
+    if (!reportId || !hours) {
+        return res.status(400).json({ error: 'ReportId and hours are required' });
+    }
 
     // Find the report based on its ID
     const report = await Report.findById(reportId);
@@ -121,8 +129,8 @@ const updateReports = async (req: Request, res: Response) => {
     const endWeekNumber = getISOWeek(endOfLastMonth);
 
     // Check if the report's week number falls within the range of the previous month
-    if (!(report.weekNumber >= startWeekNumber &&
-        report.weekNumber <= endWeekNumber &&
+    if (!(report.weekNumber.valueOf() >= startWeekNumber &&
+        report.weekNumber.valueOf() <= endWeekNumber &&
         report.year === getYear(currentDate))) {
         return res.status(400).json({
             error: 'The report is not from the last month'

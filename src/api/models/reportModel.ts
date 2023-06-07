@@ -1,4 +1,13 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
+
+export interface ReportType extends Document {
+    _id: Types.ObjectId;
+    user: Types.ObjectId[];
+    project: Types.ObjectId[];
+    weekNumber: Number;
+    hours: Number;
+    year: Number;
+}
 
 const ReportSchema: Schema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -8,4 +17,4 @@ const ReportSchema: Schema = new Schema({
     year: { type: Number, required: true }
 });
 
-export default mongoose.model('Report', ReportSchema);
+export default mongoose.model<ReportType>('Report', ReportSchema);
