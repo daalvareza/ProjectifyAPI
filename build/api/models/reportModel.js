@@ -24,10 +24,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const UserSchema = new mongoose_1.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    projects: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Project' }],
-    reports: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Report' }]
+const ReportSchema = new mongoose_1.Schema({
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    project: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Project', required: true },
+    weekNumber: { type: Number, required: true },
+    hours: { type: Number, required: true },
+    year: { type: Number, required: true }
 });
-exports.default = mongoose_1.default.model('User', UserSchema);
+exports.default = mongoose_1.default.model('Report', ReportSchema);

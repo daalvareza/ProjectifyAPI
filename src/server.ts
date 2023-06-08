@@ -4,14 +4,19 @@ import userRoutes from './api/routes/usersRoutes';
 import projectsRoutes from './api/routes/projectsRoutes';
 import reportsRoutes from './api/routes/reportsRoutes';
 
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config();
+}
+
 // Create an instance of Express
 const router: Express = express();
 
 // Set the port number
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/projectify');
+const mongoDBURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/projectify';
+mongoose.connect(mongoDBURI);
 
 // Get the MongoDB connection
 const db = mongoose.connection;
@@ -54,6 +59,6 @@ router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start the server
-router.listen(port, () => {
-    console.log(`Server listening at port: ${port}`);
+router.listen(PORT, () => {
+    console.log(`Server listening at port: ${PORT}`);
 });

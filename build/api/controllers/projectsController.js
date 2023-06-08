@@ -15,25 +15,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const projectModel_1 = __importDefault(require("../models/projectModel"));
 // Function for adding a new project
 const addProject = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // Extract necessary data from the request body
+    const { name, description } = req.body;
     // Create a new project instance
-    const newProject = new projectModel_1.default({
-        name: 'testProject',
-        description: 'testDescription'
-    });
+    const newProject = new projectModel_1.default({ name, description });
     // Save the new project to the database
-    newProject.save()
-        .then((project) => console.log(project))
-        .catch((error) => console.log(error));
-    // Return a JSON response indicating success
-    return res.status(200).json({
-        message: `New project created: ${newProject}`
+    yield newProject.save()
+        .then((project) => {
+        return res.status(200).json({
+            message: `New project created: ${JSON.stringify(project)}`,
+        });
+    })
+        .catch((error) => {
+        return res.status(400).json({
+            error: error.message
+        });
     });
 });
 // Function for getting projects
 const getProjects = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Return a JSON response with a message indicating there are no projects currently
+    // Retrieve all projects from the database
+    const allProjects = yield projectModel_1.default.find();
+    // Return a JSON response with the list of projects
     return res.status(200).json({
-        message: 'Right now there are no projects, but soon!'
+        projects: allProjects
     });
 });
 exports.default = { addProject, getProjects };
