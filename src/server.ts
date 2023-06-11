@@ -29,7 +29,7 @@ db.once('open', () => {
 });
 
 router.use(cors({
-    origin: 'http://localhost:4200' // restrict calls to those this address
+    origin: 'https://projectify-ui.herokuapp.com' // restrict calls to those this address
 }));
 
 // Middleware for parsing JSON
