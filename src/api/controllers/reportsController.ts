@@ -108,6 +108,11 @@ const updateReports = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'ReportId and hours are required' });
     }
 
+    // Check if the hours are less than 45
+    if (Number(hours) > 45) {
+        return res.status(400).json({ error: 'Hours reported per week should not be more than 45 hours'});
+    }
+
     // Find the report based on its ID
     const report = await Report.findById(reportId);
 
@@ -120,17 +125,11 @@ const updateReports = async (req: Request, res: Response) => {
 
     const currentDate = new Date();
 
-    // Calculate the start and end dates of the previous month
-    const startOfLastMonth = startOfMonth(subMonths(currentDate, 1));
-    const endOfLastMonth = endOfMonth(subMonths(currentDate, 1));
-
-    // Get the ISO week numbers for the start and end dates of the previous month
-    const startWeekNumber = getISOWeek(startOfLastMonth);
-    const endWeekNumber = getISOWeek(endOfLastMonth);
+    // Get the ISO week number of the current date
+    const currentWeekNumber = getISOWeek(currentDate);
 
     // Check if the report's week number falls within the range of the previous month
-    if (!(report.weekNumber.valueOf() >= startWeekNumber &&
-        report.weekNumber.valueOf() <= endWeekNumber &&
+    if (!(currentWeekNumber - report.weekNumber.valueOf() <= 4 &&
         report.year === getYear(currentDate))) {
         return res.status(400).json({
             error: 'The report is not from the last month'

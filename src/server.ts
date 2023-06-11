@@ -1,5 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import userRoutes from './api/routes/usersRoutes';
 import projectsRoutes from './api/routes/projectsRoutes';
 import reportsRoutes from './api/routes/reportsRoutes';
@@ -26,6 +27,10 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
     console.log('Connected to the database successfully!')
 });
+
+router.use(cors({
+    origin: 'http://localhost:4200' // restrict calls to those this address
+}));
 
 // Middleware for parsing JSON
 router.use(express.json());
